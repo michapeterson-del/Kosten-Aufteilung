@@ -52,16 +52,34 @@ export function ReceiptForm({ people, categories, onAdd }: Props) {
     try {
       const dataUrl = await fileToCompressedDataUrl(file);
       setPhoto(dataUrl);
-      setScanHint('Betrag wird erkannt …');
-      const result = await scanReceiptImage(dataUrl);
+      setScanHint('Beleg wird erkannt …');
+      const result = await scanReceiptImage(dataUrl, categories);
+
+      const found: string[] = [];
       if (result.amount) {
         setAmount(result.amount.toFixed(2).replace('.', ','));
-        setScanHint(`Betrag erkannt: ${result.amount.toFixed(2).replace('.', ',')} € — bitte prüfen`);
-      } else {
-        setScanHint('Betrag konnte nicht automatisch erkannt werden, bitte manuell eintragen.');
+        found.push('Betrag');
       }
+      if (result.date) {
+        setDate(result.date);
+        found.push('Datum');
+      }
+      if (result.description) {
+        setDescription(result.description);
+        found.push('Beschreibung');
+      }
+      if (result.categoryId) {
+        setCategoryId(result.categoryId);
+        found.push('Kategorie');
+      }
+
+      setScanHint(
+        found.length > 0
+          ? `Erkannt: ${found.join(', ')} — bitte prüfen`
+          : 'Es konnte nichts automatisch erkannt werden, bitte manuell eintragen.',
+      );
     } catch {
-      setScanHint('Scan fehlgeschlagen. Bitte Betrag manuell eintragen.');
+      setScanHint('Scan fehlgeschlagen. Bitte Angaben manuell eintragen.');
     } finally {
       setScanning(false);
     }
