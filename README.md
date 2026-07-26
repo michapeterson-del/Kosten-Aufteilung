@@ -35,3 +35,13 @@ npm run build   # Typecheck + Produktions-Build
 npm run lint    # Oxlint
 npm run preview # Produktions-Build lokal ansehen
 ```
+
+## Hosting über GitHub Pages
+
+Es gibt einen GitHub-Actions-Workflow (`.github/workflows/deploy.yml`), der die App bei
+jedem Push automatisch baut und auf GitHub Pages veröffentlicht — danach reicht es, die
+Pages-URL im Browser zu öffnen, ein manueller Build ist nicht nötig.
+
+Einmalig einzurichten (Repo-Einstellungen, nicht per Code möglich):
+**Settings → Pages → Build and deployment → Source** auf **„GitHub Actions“** stellen
+(statt „Deploy from a branch“). Danach läuft jeder Push automatisch durch.
