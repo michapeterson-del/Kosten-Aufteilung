@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { Category, Person, Receipt } from '../types';
+import { fileToCompressedDataUrl, scanReceiptImage } from '../receiptScan';
 
 interface Props {
   people: Person[];
@@ -18,6 +19,10 @@ export function ReceiptForm({ people, categories, onAdd }: Props) {
   const [categoryId, setCategoryId] = useState(categories[0]?.id ?? '');
   const [paidById, setPaidById] = useState(people[0]?.id ?? '');
   const [splitBetweenIds, setSplitBetweenIds] = useState<string[]>(people.map((p) => p.id));
+  const [photo, setPhoto] = useState<string | undefined>(undefined);
+  const [scanning, setScanning] = useState(false);
+  const [scanHint, setScanHint] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (people.length === 0) {
     return (
@@ -37,6 +42,31 @@ export function ReceiptForm({ people, categories, onAdd }: Props) {
     );
   };
 
+  const handlePhotoSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    setScanning(true);
+    setScanHint('Foto wird gelesen …');
+    try {
+      const dataUrl = await fileToCompressedDataUrl(file);
+      setPhoto(dataUrl);
+      setScanHint('Betrag wird erkannt …');
+      const result = await scanReceiptImage(dataUrl);
+      if (result.amount) {
+        setAmount(result.amount.toFixed(2).replace('.', ','));
+        setScanHint(`Betrag erkannt: ${result.amount.toFixed(2).replace('.', ',')} € — bitte prüfen`);
+      } else {
+        setScanHint('Betrag konnte nicht automatisch erkannt werden, bitte manuell eintragen.');
+      }
+    } catch {
+      setScanHint('Scan fehlgeschlagen. Bitte Betrag manuell eintragen.');
+    } finally {
+      setScanning(false);
+    }
+  };
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const parsedAmount = parseFloat(amount.replace(',', '.'));
@@ -50,9 +80,12 @@ export function ReceiptForm({ people, categories, onAdd }: Props) {
       categoryId: effectiveCategoryId,
       paidById: effectivePaidById,
       splitBetweenIds,
+      photo,
     });
     setDescription('');
     setAmount('');
+    setPhoto(undefined);
+    setScanHint(null);
   };
 
   const allSelected = splitBetweenIds.length === people.length;
@@ -61,6 +94,46 @@ export function ReceiptForm({ people, categories, onAdd }: Props) {
     <div className="card">
       <h2>Kassenzettel erfassen</h2>
       <form className="receipt-form" onSubmit={submit}>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          hidden
+          onChange={handlePhotoSelected}
+        />
+
+        <div className="scan-area">
+          {photo ? (
+            <div className="scan-preview">
+              <img src={photo} alt="Foto des Kassenzettels" />
+              <button
+                type="button"
+                className="chip-remove scan-remove"
+                onClick={() => {
+                  setPhoto(undefined);
+                  setScanHint(null);
+                }}
+                aria-label="Foto entfernen"
+              >
+                ×
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="scan-button"
+              disabled={scanning}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              📷 Kassenzettel scannen
+            </button>
+          )}
+          {(scanning || scanHint) && (
+            <p className={`scan-hint ${scanning ? 'scanning' : ''}`}>{scanHint}</p>
+          )}
+        </div>
+
         <label>
           Beschreibung
           <input

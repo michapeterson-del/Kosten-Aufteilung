@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Category, Person, Receipt } from '../types';
 import { personName } from '../calculations';
 import { formatCurrency, formatDate } from '../format';
@@ -11,6 +12,7 @@ interface Props {
 
 export function ReceiptList({ receipts, people, categories, onRemove }: Props) {
   const sorted = [...receipts].sort((a, b) => b.date.localeCompare(a.date));
+  const [lightboxPhoto, setLightboxPhoto] = useState<string | null>(null);
 
   return (
     <div className="card">
@@ -24,7 +26,18 @@ export function ReceiptList({ receipts, people, categories, onRemove }: Props) {
             return (
               <li key={r.id} className="receipt-item">
                 <div className="receipt-main">
-                  <span className="receipt-category">{category?.icon ?? '💶'}</span>
+                  {r.photo ? (
+                    <button
+                      type="button"
+                      className="receipt-thumb"
+                      onClick={() => setLightboxPhoto(r.photo!)}
+                      aria-label="Foto vergrößern"
+                    >
+                      <img src={r.photo} alt="" />
+                    </button>
+                  ) : (
+                    <span className="receipt-category">{category?.icon ?? '💶'}</span>
+                  )}
                   <div className="receipt-details">
                     <div className="receipt-title">{r.description}</div>
                     <div className="receipt-meta">
@@ -49,6 +62,12 @@ export function ReceiptList({ receipts, people, categories, onRemove }: Props) {
             );
           })}
         </ul>
+      )}
+
+      {lightboxPhoto && (
+        <div className="lightbox" onClick={() => setLightboxPhoto(null)}>
+          <img src={lightboxPhoto} alt="Kassenzettel" />
+        </div>
       )}
     </div>
   );
