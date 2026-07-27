@@ -20,6 +20,19 @@ Format:
 Verfügbare Kategorien (nutze exakt eine dieser ids oder null):
 ${categoryList}
 
+Faustregeln zur Kategorie-Zuordnung (falls eine passende Kategorie existiert):
+- Supermärkte und Lebensmittelgeschäfte (z. B. Lidl, Aldi, Rewe, Edeka, Netto, Kaufland,
+  Penny, Spar, Billa, Hofer, Denner, Migros, Coop, Metro) sowie Restaurants, Cafés,
+  Bäckereien, Imbisse, Bars und Getränkemärkte zählen zu "Essen & Trinken" — auch wenn
+  auf dem Beleg einzelne Non-Food-Artikel stehen. Der Laden-Typ entscheidet, nicht jede
+  einzelne Position.
+  Eine Kategorie wie "Einkaufen"/"Shopping" ist NUR für Käufe, bei denen der Laden
+  erkennbar NICHT primär Lebensmittel verkauft (z. B. Kleidung, Elektronik, Souvenirs,
+  Drogerie, Kaufhaus).
+- Tankstellen, Parkgebühren, Fahrkarten, Taxi, Mietwagen, Fähre, Flug zählen zu "Transport".
+- Hotels, Ferienwohnungen, Pensionen, Camping zählen zu "Unterkunft".
+- Eintritte, Touren, Museen, Freizeitaktivitäten zählen zu "Aktivitäten".
+
 Wenn ein Betrag mit Mehrwertsteuer/Trinkgeld/Endsumme angegeben ist, nimm den finalen Gesamtbetrag, nicht Einzelposten.`;
 }
 
