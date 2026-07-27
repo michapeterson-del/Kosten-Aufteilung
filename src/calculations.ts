@@ -93,3 +93,18 @@ export function getSettlements(summaries: PersonSummary[]): Settlement[] {
 export function personName(people: Person[], id: string): string {
   return people.find((p) => p.id === id)?.name ?? 'Unbekannt';
 }
+
+export interface PersonReceiptShare {
+  receipt: Receipt;
+  share: number;
+}
+
+export function getPersonReceiptShares(trip: TripState, personId: string): PersonReceiptShare[] {
+  return trip.receipts
+    .filter((r) => r.splitBetweenIds.includes(personId) && r.splitBetweenIds.length > 0)
+    .map((receipt) => ({
+      receipt,
+      share: round2(receipt.amount / receipt.splitBetweenIds.length),
+    }))
+    .sort((a, b) => b.receipt.date.localeCompare(a.receipt.date));
+}
