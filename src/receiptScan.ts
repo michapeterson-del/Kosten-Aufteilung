@@ -153,7 +153,7 @@ export interface ScanResult {
   date: string | null;
   description: string | null;
   categoryId: string | null;
-  text: string;
+  text?: string;
 }
 
 export async function scanReceiptImage(dataUrl: string, categories: Category[]): Promise<ScanResult> {

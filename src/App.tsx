@@ -7,6 +7,7 @@ import { ReceiptForm } from './components/ReceiptForm';
 import { ReceiptList } from './components/ReceiptList';
 import { Dashboard } from './components/Dashboard';
 import { Settlement } from './components/Settlement';
+import { ApiKeySettings } from './components/ApiKeySettings';
 
 type Tab = 'erfassen' | 'uebersicht' | 'abrechnung' | 'einstellungen';
 
@@ -82,6 +83,7 @@ function App() {
               onAdd={addCategory}
               onRemove={removeCategory}
             />
+            <ApiKeySettings />
             <div className="card">
               <h2>Daten</h2>
               <p className="section-hint">

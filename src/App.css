@@ -158,6 +158,14 @@ button.link-button {
   gap: 12px;
 }
 
+.api-key-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+}
+
 .form-row {
   display: flex;
   gap: 12px;

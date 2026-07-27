@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react';
 import type { Category, Person, Receipt } from '../types';
 import { fileToCompressedDataUrl, scanReceiptImage } from '../receiptScan';
+import { scanReceiptWithAI } from '../aiScan';
+import { getApiKey } from '../apiKey';
 
 interface Props {
   people: Person[];
@@ -52,8 +54,24 @@ export function ReceiptForm({ people, categories, onAdd }: Props) {
     try {
       const dataUrl = await fileToCompressedDataUrl(file);
       setPhoto(dataUrl);
-      setScanHint('Beleg wird erkannt …');
-      const result = await scanReceiptImage(dataUrl, categories);
+
+      const apiKey = getApiKey();
+      let result;
+      let usedAi = false;
+      if (apiKey) {
+        setScanHint('Beleg wird per KI erkannt …');
+        try {
+          result = await scanReceiptWithAI(dataUrl, categories, apiKey);
+          usedAi = true;
+        } catch (aiError) {
+          setScanHint('KI-Erkennung fehlgeschlagen, versuche lokale Erkennung …');
+          result = await scanReceiptImage(dataUrl, categories);
+          console.warn('KI-Scan fehlgeschlagen:', aiError);
+        }
+      } else {
+        setScanHint('Beleg wird erkannt …');
+        result = await scanReceiptImage(dataUrl, categories);
+      }
 
       const found: string[] = [];
       if (result.amount) {
@@ -73,9 +91,10 @@ export function ReceiptForm({ people, categories, onAdd }: Props) {
         found.push('Kategorie');
       }
 
+      const source = usedAi ? 'KI' : 'lokale Erkennung';
       setScanHint(
         found.length > 0
-          ? `Erkannt: ${found.join(', ')} — bitte prüfen`
+          ? `Erkannt (${source}): ${found.join(', ')} — bitte prüfen`
           : 'Es konnte nichts automatisch erkannt werden, bitte manuell eintragen.',
       );
     } catch {
