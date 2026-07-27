@@ -27,7 +27,8 @@ export function ReceiptForm({ people, categories, onAdd, onUpdate, editingReceip
   const [photo, setPhoto] = useState<string | undefined>(undefined);
   const [scanning, setScanning] = useState(false);
   const [scanHint, setScanHint] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const libraryInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -165,10 +166,17 @@ export function ReceiptForm({ people, categories, onAdd, onUpdate, editingReceip
       <h2>{isEditing ? 'Kassenzettel bearbeiten' : 'Kassenzettel erfassen'}</h2>
       <form className="receipt-form" onSubmit={submit}>
         <input
-          ref={fileInputRef}
+          ref={cameraInputRef}
           type="file"
           accept="image/*"
           capture="environment"
+          hidden
+          onChange={handlePhotoSelected}
+        />
+        <input
+          ref={libraryInputRef}
+          type="file"
+          accept="image/*"
           hidden
           onChange={handlePhotoSelected}
         />
@@ -190,14 +198,24 @@ export function ReceiptForm({ people, categories, onAdd, onUpdate, editingReceip
               </button>
             </div>
           ) : (
-            <button
-              type="button"
-              className="scan-button"
-              disabled={scanning}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              📷 Kassenzettel scannen
-            </button>
+            <div className="scan-buttons">
+              <button
+                type="button"
+                className="scan-button"
+                disabled={scanning}
+                onClick={() => cameraInputRef.current?.click()}
+              >
+                📷 Foto aufnehmen
+              </button>
+              <button
+                type="button"
+                className="scan-button"
+                disabled={scanning}
+                onClick={() => libraryInputRef.current?.click()}
+              >
+                🖼️ Aus Fotos wählen
+              </button>
+            </div>
           )}
           {(scanning || scanHint) && (
             <p className={`scan-hint ${scanning ? 'scanning' : ''}`}>{scanHint}</p>
