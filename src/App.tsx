@@ -15,7 +15,6 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'erfassen', label: 'Erfassen', icon: '🧾' },
   { id: 'uebersicht', label: 'Übersicht', icon: '📊' },
   { id: 'abrechnung', label: 'Abrechnung', icon: '🤝' },
-  { id: 'einstellungen', label: 'Einstellungen', icon: '⚙️' },
 ];
 
 function App() {
@@ -96,6 +95,15 @@ function App() {
           </>
         )}
       </main>
+
+      <button
+        type="button"
+        className={`settings-fab ${tab === 'einstellungen' ? 'active' : ''}`}
+        onClick={() => setTab('einstellungen')}
+        aria-label="Einstellungen"
+      >
+        ⚙️
+      </button>
     </div>
   );
 }

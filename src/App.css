@@ -57,6 +57,30 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding-bottom: 64px;
+}
+
+.settings-fab {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 20;
+}
+
+.settings-fab.active {
+  background: var(--accent-bg);
+  border-color: var(--accent);
 }
 
 .card {
