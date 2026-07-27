@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Category, Person, Receipt } from '../types';
 import { fileToCompressedDataUrl, scanReceiptImage } from '../receiptScan';
 import { scanReceiptWithAI } from '../aiScan';
@@ -8,13 +8,16 @@ interface Props {
   people: Person[];
   categories: Category[];
   onAdd: (receipt: Omit<Receipt, 'id'>) => void;
+  onUpdate: (id: string, receipt: Omit<Receipt, 'id'>) => void;
+  editingReceipt: Receipt | null;
+  onCancelEdit: () => void;
 }
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function ReceiptForm({ people, categories, onAdd }: Props) {
+export function ReceiptForm({ people, categories, onAdd, onUpdate, editingReceipt, onCancelEdit }: Props) {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(today());
   const [amount, setAmount] = useState('');
@@ -25,6 +28,21 @@ export function ReceiptForm({ people, categories, onAdd }: Props) {
   const [scanning, setScanning] = useState(false);
   const [scanHint, setScanHint] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (editingReceipt) {
+      setDescription(editingReceipt.description);
+      setDate(editingReceipt.date);
+      setAmount(editingReceipt.amount.toFixed(2).replace('.', ','));
+      setCategoryId(editingReceipt.categoryId);
+      setPaidById(editingReceipt.paidById);
+      setSplitBetweenIds(editingReceipt.splitBetweenIds);
+      setPhoto(editingReceipt.photo);
+      setScanHint(null);
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [editingReceipt]);
 
   if (people.length === 0) {
     return (
@@ -104,13 +122,24 @@ export function ReceiptForm({ people, categories, onAdd }: Props) {
     }
   };
 
+  const resetForm = () => {
+    setDescription('');
+    setAmount('');
+    setDate(today());
+    setCategoryId(categories[0]?.id ?? '');
+    setPaidById(people[0]?.id ?? '');
+    setSplitBetweenIds(people.map((p) => p.id));
+    setPhoto(undefined);
+    setScanHint(null);
+  };
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const parsedAmount = parseFloat(amount.replace(',', '.'));
     if (!description.trim() || !parsedAmount || parsedAmount <= 0 || splitBetweenIds.length === 0) {
       return;
     }
-    onAdd({
+    const payload = {
       description: description.trim(),
       date,
       amount: Math.round(parsedAmount * 100) / 100,
@@ -118,18 +147,22 @@ export function ReceiptForm({ people, categories, onAdd }: Props) {
       paidById: effectivePaidById,
       splitBetweenIds,
       photo,
-    });
-    setDescription('');
-    setAmount('');
-    setPhoto(undefined);
-    setScanHint(null);
+    };
+
+    if (editingReceipt) {
+      onUpdate(editingReceipt.id, payload);
+    } else {
+      onAdd(payload);
+    }
+    resetForm();
   };
 
   const allSelected = splitBetweenIds.length === people.length;
+  const isEditing = Boolean(editingReceipt);
 
   return (
-    <div className="card">
-      <h2>Kassenzettel erfassen</h2>
+    <div className="card" ref={formRef}>
+      <h2>{isEditing ? 'Kassenzettel bearbeiten' : 'Kassenzettel erfassen'}</h2>
       <form className="receipt-form" onSubmit={submit}>
         <input
           ref={fileInputRef}
@@ -248,9 +281,22 @@ export function ReceiptForm({ people, categories, onAdd }: Props) {
           </div>
         </fieldset>
 
-        <button type="submit" className="primary">
-          Kassenzettel speichern
-        </button>
+        <div className="form-actions">
+          {isEditing && (
+            <button
+              type="button"
+              onClick={() => {
+                onCancelEdit();
+                resetForm();
+              }}
+            >
+              Abbrechen
+            </button>
+          )}
+          <button type="submit" className="primary">
+            {isEditing ? 'Änderungen speichern' : 'Kassenzettel speichern'}
+          </button>
+        </div>
       </form>
     </div>
   );

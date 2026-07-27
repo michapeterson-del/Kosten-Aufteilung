@@ -8,9 +8,11 @@ interface Props {
   people: Person[];
   categories: Category[];
   onRemove: (id: string) => void;
+  onEdit: (receipt: Receipt) => void;
+  editingId: string | null;
 }
 
-export function ReceiptList({ receipts, people, categories, onRemove }: Props) {
+export function ReceiptList({ receipts, people, categories, onRemove, onEdit, editingId }: Props) {
   const sorted = [...receipts].sort((a, b) => b.date.localeCompare(a.date));
   const [lightboxPhoto, setLightboxPhoto] = useState<string | null>(null);
 
@@ -24,7 +26,7 @@ export function ReceiptList({ receipts, people, categories, onRemove }: Props) {
           {sorted.map((r) => {
             const category = categories.find((c) => c.id === r.categoryId);
             return (
-              <li key={r.id} className="receipt-item">
+              <li key={r.id} className={`receipt-item ${editingId === r.id ? 'editing' : ''}`}>
                 <div className="receipt-main">
                   {r.photo ? (
                     <button
@@ -49,6 +51,14 @@ export function ReceiptList({ receipts, people, categories, onRemove }: Props) {
                 </div>
                 <div className="receipt-amount">
                   {formatCurrency(r.amount)}
+                  <button
+                    type="button"
+                    className="receipt-edit"
+                    onClick={() => onEdit(r)}
+                    aria-label="Kassenzettel bearbeiten"
+                  >
+                    ✏️
+                  </button>
                   <button
                     type="button"
                     className="chip-remove"

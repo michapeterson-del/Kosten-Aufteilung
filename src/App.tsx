@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import { useTripState } from './useTripState';
+import type { Receipt } from './types';
 import { PeopleManager } from './components/PeopleManager';
 import { CategoryManager } from './components/CategoryManager';
 import { ReceiptForm } from './components/ReceiptForm';
@@ -25,15 +26,27 @@ function App() {
     addCategory,
     removeCategory,
     addReceipt,
+    updateReceipt,
     removeReceipt,
     resetTrip,
   } = useTripState();
   const [tab, setTab] = useState<Tab>('erfassen');
+  const [editingReceipt, setEditingReceipt] = useState<Receipt | null>(null);
 
   const handleReset = () => {
     if (confirm('Wirklich alle Daten dieses Urlaubs löschen? Das kann nicht rückgängig gemacht werden.')) {
       resetTrip();
     }
+  };
+
+  const handleRemoveReceipt = (id: string) => {
+    if (editingReceipt?.id === id) setEditingReceipt(null);
+    removeReceipt(id);
+  };
+
+  const handleUpdateReceipt: typeof updateReceipt = (id, receipt) => {
+    updateReceipt(id, receipt);
+    setEditingReceipt(null);
   };
 
   return (
@@ -60,12 +73,21 @@ function App() {
       <main className="app-main">
         {tab === 'erfassen' && (
           <>
-            <ReceiptForm people={trip.people} categories={trip.categories} onAdd={addReceipt} />
+            <ReceiptForm
+              people={trip.people}
+              categories={trip.categories}
+              onAdd={addReceipt}
+              onUpdate={handleUpdateReceipt}
+              editingReceipt={editingReceipt}
+              onCancelEdit={() => setEditingReceipt(null)}
+            />
             <ReceiptList
               receipts={trip.receipts}
               people={trip.people}
               categories={trip.categories}
-              onRemove={removeReceipt}
+              onRemove={handleRemoveReceipt}
+              onEdit={setEditingReceipt}
+              editingId={editingReceipt?.id ?? null}
             />
           </>
         )}

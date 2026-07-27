@@ -69,6 +69,13 @@ export function useTripState() {
     setTrip((t) => ({ ...t, receipts: [{ ...receipt, id: makeId() }, ...t.receipts] }));
   }, []);
 
+  const updateReceipt = useCallback((id: string, receipt: Omit<Receipt, 'id'>) => {
+    setTrip((t) => ({
+      ...t,
+      receipts: t.receipts.map((r) => (r.id === id ? { ...receipt, id } : r)),
+    }));
+  }, []);
+
   const removeReceipt = useCallback((id: string) => {
     setTrip((t) => ({ ...t, receipts: t.receipts.filter((r) => r.id !== id) }));
   }, []);
@@ -84,6 +91,7 @@ export function useTripState() {
     addCategory,
     removeCategory,
     addReceipt,
+    updateReceipt,
     removeReceipt,
     resetTrip,
   };
