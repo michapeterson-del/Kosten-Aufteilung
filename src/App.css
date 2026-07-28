@@ -252,19 +252,19 @@ button.link-button {
 
 .scan-buttons {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
 }
 
 .scan-button {
   flex: 1;
-  padding: 14px 8px;
+  padding: 12px 4px;
   border: 1px dashed var(--accent);
   border-radius: 10px;
   background: var(--accent-bg);
   color: var(--accent-strong);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .scan-preview {

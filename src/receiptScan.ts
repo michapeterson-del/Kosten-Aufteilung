@@ -117,9 +117,9 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'camping', 'resort', 'apartment', 'zimmer',
   ],
   transport: [
-    'tankstelle', 'shell', 'aral', 'esso', 'taxi', 'uber', 'bahn', 'db fahrkarte',
-    'ticket', 'flug', 'airline', 'mietwagen', 'parkhaus', 'parken', 'fähre',
-    'faehre', 'bus', 'ryanair',
+    'tankstelle', 'tanken', 'tanke', 'benzin', 'diesel', 'sprit', 'shell', 'aral',
+    'esso', 'taxi', 'uber', 'bahn', 'db fahrkarte', 'ticket', 'flug', 'airline',
+    'mietwagen', 'parkhaus', 'parken', 'fähre', 'faehre', 'bus', 'ryanair',
   ],
   aktivitaeten: [
     'museum', 'eintritt', 'tour', 'ausflug', 'schwimmbad', 'freizeitpark',

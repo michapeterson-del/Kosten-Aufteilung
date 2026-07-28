@@ -3,6 +3,8 @@ import type { Category, Person, Receipt } from '../types';
 import { fileToCompressedDataUrl, scanReceiptImage } from '../receiptScan';
 import { scanReceiptWithAI } from '../aiScan';
 import { getApiKey } from '../apiKey';
+import { isVoiceInputSupported, listenOnce } from '../voiceInput';
+import { parseVoiceCommand } from '../voiceParse';
 
 interface Props {
   people: Person[];
@@ -123,6 +125,44 @@ export function ReceiptForm({ people, categories, onAdd, onUpdate, editingReceip
     }
   };
 
+  const handleVoiceInput = async () => {
+    setScanning(true);
+    setScanHint('🎤 Höre zu …');
+    try {
+      const transcript = await listenOnce();
+      const result = parseVoiceCommand(transcript, people, categories);
+
+      const found: string[] = [];
+      if (result.amount) {
+        setAmount(result.amount.toFixed(2).replace('.', ','));
+        found.push('Betrag');
+      }
+      if (result.description) {
+        setDescription(result.description);
+        found.push('Beschreibung');
+      }
+      if (result.categoryId) {
+        setCategoryId(result.categoryId);
+        found.push('Kategorie');
+      }
+      if (result.splitBetweenIds) {
+        setSplitBetweenIds(result.splitBetweenIds);
+        found.push('Aufteilung');
+      }
+
+      const warning = result.splitWarning ? ' (Teilnehmer bitte prüfen)' : '';
+      setScanHint(
+        found.length > 0
+          ? `Verstanden: „${transcript}“ — erkannt: ${found.join(', ')}${warning}`
+          : `Verstanden: „${transcript}“ — konnte aber nichts davon zuordnen, bitte manuell eintragen.`,
+      );
+    } catch (err) {
+      setScanHint(err instanceof Error ? err.message : 'Spracheingabe fehlgeschlagen.');
+    } finally {
+      setScanning(false);
+    }
+  };
+
   const resetForm = () => {
     setDescription('');
     setAmount('');
@@ -160,6 +200,7 @@ export function ReceiptForm({ people, categories, onAdd, onUpdate, editingReceip
 
   const allSelected = splitBetweenIds.length === people.length;
   const isEditing = Boolean(editingReceipt);
+  const voiceSupported = isVoiceInputSupported();
 
   return (
     <div className="card" ref={formRef}>
@@ -205,7 +246,7 @@ export function ReceiptForm({ people, categories, onAdd, onUpdate, editingReceip
                 disabled={scanning}
                 onClick={() => cameraInputRef.current?.click()}
               >
-                📷 Foto aufnehmen
+                📷 Kamera
               </button>
               <button
                 type="button"
@@ -213,8 +254,18 @@ export function ReceiptForm({ people, categories, onAdd, onUpdate, editingReceip
                 disabled={scanning}
                 onClick={() => libraryInputRef.current?.click()}
               >
-                🖼️ Aus Fotos wählen
+                🖼️ Fotos
               </button>
+              {voiceSupported && (
+                <button
+                  type="button"
+                  className="scan-button"
+                  disabled={scanning}
+                  onClick={handleVoiceInput}
+                >
+                  🎤 Diktieren
+                </button>
+              )}
             </div>
           )}
           {(scanning || scanHint) && (

@@ -13,11 +13,16 @@ Urlaubs sehen, wer wem wie viel schuldet.
   zuverlässig, siehe unten); ohne Key nutzt die App eine eingebaute, komplett lokale
   Texterkennung (OCR) als Fallback — funktioniert auch offline, ist aber ungenauer.
 - **Kassenzettel erfassen**: Beschreibung, Betrag, Datum, Kategorie, wer bezahlt hat
-  und auf wen der Betrag aufgeteilt wird
+  und auf wen der Betrag aufgeteilt wird; bestehende Kassenzettel lassen sich jederzeit
+  bearbeiten
+- **Spracheingabe**: z. B. "50 Euro Tanken, aufteilen zu dritt" diktieren — Betrag,
+  Beschreibung, Kategorie und Aufteilung werden automatisch erkannt (benötigt einen
+  Browser mit Web-Speech-API-Unterstützung, z. B. Chrome)
 - **Übersicht**: Gesamtausgaben, Ausgaben pro Kategorie sowie bezahlter Betrag und
-  eigener Anteil pro Person
+  eigener Anteil pro Person — pro Person aufklappbar bis auf den einzelnen Kassenzettel
 - **Abrechnung**: Saldo pro Person und ein Vorschlag mit möglichst wenigen
   Überweisungen, um am Ende des Urlaubs alles fair auszugleichen
+- **Export** als Excel- oder PDF-Datei (Übersicht, alle Kassenzettel, Abrechnung)
 - Alle Daten werden nur lokal im Browser gespeichert (`localStorage`) — kein Backend
   nötig
 

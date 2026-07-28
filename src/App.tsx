@@ -9,6 +9,7 @@ import { ReceiptList } from './components/ReceiptList';
 import { Dashboard } from './components/Dashboard';
 import { Settlement } from './components/Settlement';
 import { ApiKeySettings } from './components/ApiKeySettings';
+import { ExportButtons } from './components/ExportButtons';
 
 type Tab = 'erfassen' | 'uebersicht' | 'abrechnung' | 'einstellungen';
 
@@ -105,6 +106,7 @@ function App() {
               onRemove={removeCategory}
             />
             <ApiKeySettings />
+            <ExportButtons trip={trip} />
             <div className="card">
               <h2>Daten</h2>
               <p className="section-hint">
