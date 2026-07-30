@@ -12,7 +12,7 @@ function buildPrompt(categories: Category[]): string {
 Format:
 {
   "description": string,      // kurzer Name des Geschäfts/Restaurants/Anbieters, z. B. "REWE" oder "Taverna Poseidon"
-  "amount": number | null,    // Gesamt-/Endbetrag in Euro als Zahl mit Punkt als Dezimaltrennzeichen, z. B. 12.34, ohne Währungssymbol
+  "amount": number | null,    // NETTOBETRAG (ohne Mehrwertsteuer) in Euro als Zahl mit Punkt als Dezimaltrennzeichen, z. B. 12.34, ohne Währungssymbol — siehe Regeln unten
   "date": string | null,      // Datum des Kaufs im Format YYYY-MM-DD, falls auf dem Beleg lesbar
   "categoryId": string | null // die id der am besten passenden Kategorie aus der folgenden Liste, oder null wenn keine gut passt
 }
@@ -33,7 +33,11 @@ Faustregeln zur Kategorie-Zuordnung (falls eine passende Kategorie existiert):
 - Hotels, Ferienwohnungen, Pensionen, Camping zählen zu "Unterkunft".
 - Eintritte, Touren, Museen, Freizeitaktivitäten zählen zu "Aktivitäten".
 
-Wenn ein Betrag mit Mehrwertsteuer/Trinkgeld/Endsumme angegeben ist, nimm den finalen Gesamtbetrag, nicht Einzelposten.`;
+Regeln zum Betrag — IMMER den Nettobetrag (ohne Mehrwertsteuer) liefern, niemals den Bruttobetrag:
+- Viele Kassenzettel zeigen unten eine Aufstellung mit "Netto", "MwSt"/"USt" und "Brutto"/"Gesamt"/"Summe". Nimm in diesem Fall exakt den Wert bei "Netto".
+- Ist nur ein Bruttobetrag samt MwSt-Betrag oder MwSt-Satz (z. B. "19%") angegeben, aber kein Nettobetrag direkt aufgeführt, berechne ihn selbst: Netto = Brutto − MwSt-Betrag, bzw. Netto = Brutto ÷ (1 + MwSt-Satz/100).
+- Ist auf dem Beleg gar keine Mehrwertsteuer ausgewiesen (kein MwSt-Hinweis, keine Aufschlüsselung), nimm den einzigen verfügbaren Gesamtbetrag als Betrag.
+- Nimm die Gesamtsumme des Belegs (netto), nicht einzelne Artikelpositionen.`;
 }
 
 interface ClaudeContentBlock {

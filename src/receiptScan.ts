@@ -31,6 +31,7 @@ export function fileToCompressedDataUrl(file: File): Promise<string> {
 }
 
 const AMOUNT_PATTERN = /(\d{1,4}[.,]\d{2})/g;
+const NET_KEYWORDS = ['netto', 'nettobetrag', 'warenwert'];
 const TOTAL_KEYWORDS = [
   'gesamt',
   'summe',
@@ -45,12 +46,10 @@ function parseAmount(raw: string): number {
   return parseFloat(raw.replace(/\./g, '').replace(',', '.'));
 }
 
-export function extractAmount(text: string): number | null {
-  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
-
+function findAmountByKeywords(lines: string[], keywords: string[]): number | null {
   for (let i = lines.length - 1; i >= 0; i -= 1) {
     const lower = lines[i].toLowerCase();
-    if (TOTAL_KEYWORDS.some((k) => lower.includes(k))) {
+    if (keywords.some((k) => lower.includes(k))) {
       const matches = lines[i].match(AMOUNT_PATTERN);
       if (matches?.length) {
         const value = parseAmount(matches[matches.length - 1]);
@@ -58,6 +57,18 @@ export function extractAmount(text: string): number | null {
       }
     }
   }
+  return null;
+}
+
+export function extractAmount(text: string): number | null {
+  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+
+  // Der Kassenzettel-Scan soll immer den Nettobetrag (ohne MwSt) liefern.
+  const netAmount = findAmountByKeywords(lines, NET_KEYWORDS);
+  if (netAmount !== null) return netAmount;
+
+  const grossAmount = findAmountByKeywords(lines, TOTAL_KEYWORDS);
+  if (grossAmount !== null) return grossAmount;
 
   const allMatches = text.match(AMOUNT_PATTERN);
   if (!allMatches?.length) return null;
